@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Product</h1>
+        
+@if (session()->has ('success'))
+<div>
+
+    {{session('success')}}
+</div>
+    
+@endif
+
+        
+
+
+    <div> 
+     <table border="1">   
+        
+    <tr>
+        <th> ID </th>
+        <th> Name</th>
+
+        <th> Quantity</th>
+
+        <th> Price </th>
+
+        <th> Discreption </th>
+        <th> Edit</th>
+        <th>delete</th>
+
+    </tr>       
+    @foreach ($products as $product )
+        
+    <tr>
+       <td> {{$product->id}}</td>       
+       <td> {{$product->name}}</td>     
+       <td> {{$product->quantity}}</td>    
+       <td> {{$product->price}}</td>     
+       <td> {{$product->discription}}</td>   
+
+
+       <td>
+        <a   href="{{route('product.edit',['product' => $product])}}">Edit</a>
+    </td>  
+
+    <td>
+        <form method="post" action="{{ route('product.destroy', ['product' => $product]) }}">
+
+        {{-- <form action="post" action="{{route('product.destroy',['product'=>$product])}}"> --}}
+        @csrf
+        @method('delete')
+        <input type="submit" value="Delete" />
+        
+        </form>
+    
+    
+    </td>
+
+
+    </tr >
+    @endforeach
+    
+    </table>   
+    
+    
+    </div>
+    <div>
+        <a href="{{route('product.create')}}">create a product</a>
+    </div>
+</body>
+</html>
