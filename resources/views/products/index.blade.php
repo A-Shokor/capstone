@@ -75,8 +75,7 @@
         <a href="{{route('product.create')}}">create a product</a>
     </div>
 </body> --}}
-{{-- </html> --}} --}}
-
+{{-- </html> --}} 
 
 <!DOCTYPE html>
 <html lang="en">
