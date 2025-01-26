@@ -6,11 +6,18 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index(){
+    // public function index(){
    
-        $products = Product::all();
-        return view('products.index',['products'=>$products]);
-    }
+    //     $products = Product::all();
+    //     return view('products.index',['products'=>$products]);
+    // }
+
+
+    public function index()
+{
+    $products = Product::paginate(10); // Paginate the products (10 per page)
+    return view('products.index', compact('products'));
+}
 
     public function create () {
 
@@ -18,22 +25,7 @@ class ProductController extends Controller
 
 
     }
-//         public function store( Request $request){
-        
-//              dd($request->name);
-//     // $data = $request->validate([
 
-//     //         'name' =>'required',
-//     //         'quantity' =>'required|numeric',
-//     //         'price' =>'required|decimal:2',
-//     //         'discription'=> 'nullable',
-
-//     // ]);
-//     //         $newProduct = Product::create($data);
-//     //         return redirect (route('product.index'));
-//     //     }
-    
-// }
 
 public function edit (Product $product){
 return view ('products.edit',['product'=>$product]);
