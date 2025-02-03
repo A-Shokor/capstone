@@ -11,8 +11,14 @@ protected $fillable =[
 'name',
 'quantity',
 'price',
-'discription'
+'description',
+'barcode', 
+'supplier_name', 
+'supplier_id',  
 ];
-
+public function supplier()
+{
+    return $this->belongsTo(Supplier::class);
+}
 
 }

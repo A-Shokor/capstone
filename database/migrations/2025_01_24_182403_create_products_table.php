@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('quantity');
-            $table->decimal('price');
-            $table->text('discription') ;
+            $table->integer('quantity')->unsigned();
+            $table->decimal('price', 8, 2);
+            $table->text('description')->nullable(); // Ensure this line exists
+            $table->string('barcode')->nullable();
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->onDelete('set null');
             $table->timestamps();
         });
     }

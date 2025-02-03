@@ -1,55 +1,5 @@
+
 {{-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-    <h1>    Edit Product </h1>
-    <div>
-
-        {{-- @if ($errors->any())
-        <ul>
-            @foreach ($errors->all() as $error  )
-                <li>
-                    {{$error}}
-                </li>
-            @endforeach
-        </ul> --}}
-    {{-- </div>
-    <form method="post" action="{{route('product.update', ['product' => $product])}}">
-@csrf
-    {{-- <form method="post" action="{{route('product.update',['product' =>$product])}}"> --}}
-        {{-- @csrf
-        @method('put')
-
-    <div>
-        <label>Name:</label>
-        <input type="text" name="name" placeholder="Name" value="{{$product->name}}"/>
-    </div>
-    <div>
-        <label>Quantity:</label>
-        <input type="text" name="quantity" placeholder="Quantity"value="{{$product->quantity}}"/>
-    </div>
-    <div>
-        <label>price:</label>
-        <input type="text" name="price" placeholder="Price" value="{{$product->price}}" />
-    </div>
-    <div>
-        <label>Discription:</label>
-        <input type="text" name="discription" placeholder="Disription" value="{{$product->discription}}"/>
-    </div>
-    <input type="submit" value="   Update" />
-
-    </form>
-</body>
-</html> --}} 
-
-
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -143,7 +93,7 @@
         </div>
         @endif --}}
 
-        <form method="post" action="{{ route('product.update', ['product' => $product]) }}">
+        {{-- <form method="post" action="{{ route('product.update', ['product' => $product]) }}">
             @csrf
             @method('put')
 
@@ -170,5 +120,67 @@
             <input type="submit" value="Update Product" />
         </form>
     </div>
+</body>
+</html> --}} 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ route('dashboard') }}">Admin Panel</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center mb-4">Edit Product</h2>
+                <form method="post" action="{{ route('product.update', ['product' => $product]) }}">
+                    @csrf
+                    @method('put')
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ $product->name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" value="{{ $product->quantity }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ $product->price }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description">{{ $product->description }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="barcode" class="form-label">Barcode</label>
+                        <input type="text" class="form-control" id="barcode" name="barcode" value="{{ $product->barcode }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="supplier_name" class="form-label">Supplier Name</label>
+                        <input type="text" class="form-control" id="supplier_name" name="supplier_name" value="{{ $product->supplier_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="supplier_id" class="form-label">Supplier ID</label>
+                        <input type="number" class="form-control" id="supplier_id" name="supplier_id" value="{{ $product->supplier_id }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
