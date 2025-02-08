@@ -8,28 +8,48 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
 
+//     public function search(Request $request)
+// {
+//     $query = $request->input('query');
 
+//     // Search products by name, barcode, or supplier name
+//     $products = Product::with('supplier')
+//         ->where('name', 'like', "%{$query}%")
+//         ->orWhere('barcode', 'like', "%{$query}%")
+//         ->orWhereHas('supplier', function ($q) use ($query) {
+//             $q->where('name', 'like', "%{$query}%");
+//         })
+//         ->get();
 
-    public function index()
+//     return response()->json($products);
+// }
+public function lowStock()
 {
-    $products = Product::paginate(10); // Paginate the products (10 per page)
-    return view('products.index', compact('products'));
+    // Fetch products with low stock (quantity <= 10)
+    $lowStockProducts = Product::where('quantity', '<=', 10)->paginate(10);
+
+    return view('products.low-stock', compact('lowStockProducts'));
 }
 
-//     public function create () {
+    public function index(Request $request)
+    {
+        $query = $request->input('query');
+    
+        // Fetch products with optional search query
+        $products = Product::with('supplier')
+            ->when($query, function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('barcode', 'like', "%{$query}%")
+                  ->orWhereHas('supplier', function ($q) use ($query) {
+                      $q->where('name', 'like', "%{$query}%");
+                  });
+            })
+            ->paginate(10);
+    
+        return view('products.index', compact('products'));
+    }
 
-//         return view('products.create');
 
-
-//     }
-
-
-// public function edit (Product $product){
-
-
-// return view ('products.edit',['product'=>$product]);
-
-// } 
 public function show(Product $product)
     {
         return view('products.show', compact('product'));
@@ -51,21 +71,23 @@ public function edit(Product $product)
 
 public function update(Request $request, Product $product)
 {
-    $data = $request->validate([
+    // Validate the request
+    $validated = $request->validate([
         'name' => 'required|string|max:255',
-        'quantity' => 'required|numeric|min:0',
+        'quantity' => 'nullable|integer|min:0',
         'price' => 'required|numeric|min:0',
+        'cost' => 'required|numeric|min:0', 
         'description' => 'nullable|string',
-        'barcode' => 'nullable|string|max:255', // Validate barcode
-        'supplier_name' => 'nullable|string|max:255', // Validate supplier name
-        'supplier_id' => 'nullable|numeric', // Validate supplier ID
+        'barcode' => 'nullable|string|unique:products,barcode,' . $product->id,
+        'supplier_id' => 'required|exists:suppliers,id',
     ]);
 
-    $product->update($data);
+    // Update the product
+    $product->update($validated);
 
-    return redirect(route('product.index'))->with('success', 'Product updated successfully');
+    // Redirect back with success message
+    return redirect()->route('product.index')->with('success', 'Product updated successfully.');
 }
-
 
 
 
@@ -80,18 +102,21 @@ return redirect (route('product.index'))->with('success', 'Product deleted Succe
 
 public function store(Request $request)
 {
-    $data = $request->validate([
+    // Validate the request
+    $validated = $request->validate([
         'name' => 'required|string|max:255',
-        'quantity' => 'required|numeric|min:0',
+        'quantity' => 'nullable|integer|min:0',
         'price' => 'required|numeric|min:0',
+        'cost' => 'required|numeric|min:0', // Add validation for cost
         'description' => 'nullable|string',
-        'barcode' => 'nullable|string|max:255', // Validate barcode
-        'supplier_name' => 'nullable|string|max:255', // Validate supplier name
-        'supplier_id' => 'nullable|numeric', // Validate supplier ID
+        'barcode' => 'nullable|string|unique:products,barcode',
+        'supplier_id' => 'required|exists:suppliers,id',
     ]);
 
-    $newProduct = Product::create($data);
+    // Create the product
+    Product::create($validated);
 
-    return redirect(route('product.index'))->with('success', 'Product created successfully');
+    // Redirect back with success message
+    return redirect()->route('product.index')->with('success', 'Product created successfully.');
 }
 }

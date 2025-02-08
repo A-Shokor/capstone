@@ -7,13 +7,32 @@ use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
+//     public function search(Request $request)
+// {
+//     // Get the search query from the request
+//     $query = $request->input('query');
+
+//     // Search suppliers by name
+//     $suppliers = Supplier::where('name', 'like', "%{$query}%")->get();
+
+//     // Pass the results to the view
+//     return view('suppliers.index', compact('suppliers'));
+// }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = Supplier::paginate(10);
-        return view('suppliers.index', compact('suppliers'));
+        // Get the search query from the request
+        $query = $request->input('query');
+
+        // Fetch suppliers with optional search query
+        $suppliers = Supplier::when($query, function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%");
+        })
+        ->paginate(10); // Paginate results for better responsiveness
+
+        return view('suppliers.index', compact('suppliers', 'query'));
     }
 
     /**
@@ -29,15 +48,18 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
+        // Validate the request
+        $validated = $request->validate([
+            'name' => 'required|string|unique:suppliers,name', // Ensure the name is unique
+            'email' => 'required|email|unique:suppliers,email', // Ensure the email is unique
+            'phone' => 'required|string|max:20', // Validate phone number
         ]);
-
-        Supplier::create($data);
-
-        return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully.');
+    
+        // Create the supplier
+        $supplier = Supplier::create($validated);
+    
+        // Redirect back with success message
+        return redirect()->route('supplier.index')->with('success', 'Supplier created successfully.');
     }
 
     /**
@@ -75,7 +97,7 @@ class SupplierController extends Controller
 
         $supplier->update($data);
 
-        return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
+        return redirect()->route('supplier.index')->with('success', 'Supplier updated successfully.');
     }
 
     /**
@@ -85,6 +107,6 @@ class SupplierController extends Controller
     {
         $supplier->delete();
 
-        return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
+        return redirect()->route('supplier.index')->with('success', 'Supplier deleted successfully.');
     }
 }

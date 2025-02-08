@@ -3,33 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', 'Warehouse Management System')</title>
-
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
     <!-- Custom Styles -->
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
+            padding-top: 60px; /* Add padding to prevent content overlap */
         }
-
         .navbar {
+            position: fixed; /* Fix the navbar at the top */
+            top: 0;
+            width: 100%;
+            z-index: 1000; /* Ensure the navbar stays above other content */
             background-color: #0d6efd;
         }
-
         .navbar-brand {
             color: #fff !important;
             font-weight: bold;
         }
-
         .navbar-nav .nav-link {
             color: #fff !important;
         }
-
         .alert {
             position: relative;
             margin-bottom: 1rem;
@@ -37,52 +35,43 @@
             padding: 1rem;
             font-size: 1rem;
         }
-
         .alert-success {
             background-color: #d4edda;
             border-color: #c3e6cb;
             color: #155724;
         }
-
         .alert-danger {
             background-color: #f8d7da;
             border-color: #f5c6cb;
             color: #721c24;
         }
-
         .alert-warning {
             background-color: #fff3cd;
             border-color: #ffeeba;
             color: #856404;
         }
-
         .alert ul {
             margin: 0;
             padding-left: 1.5rem;
         }
-
         .alert .btn-close {
             position: absolute;
             top: 0.5rem;
             right: 0.5rem;
         }
-
         .table-hover tbody tr:hover {
             background-color: #f8f9fa;
         }
-
         .badge {
             font-size: 0.875rem;
             font-weight: bold;
             padding: 0.25rem 0.5rem;
             border-radius: 0.25rem;
         }
-
         .badge.bg-danger {
             background-color: #dc3545;
             color: #fff;
         }
-
         .card-hover:hover {
             transform: scale(1.02);
             transition: transform 0.3s ease-in-out;
@@ -94,25 +83,45 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ route('dashboard') }}">Warehouse Management</a>
+            <a class="navbar-brand" href="{{ route('dashboard') }}">
+                <i class="bi bi-house-door-fill"></i> Warehouse Management
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('products.index') }}"><i class="bi bi-box-seam"></i> Products</a>
+                        <a class="nav-link {{ request()->routeIs('product.*') ? 'active' : '' }}" href="{{ route('product.index') }}">
+                            <i class="bi bi-box-seam"></i> Products
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('suppliers.index') }}"><i class="bi bi-truck"></i> Suppliers</a>
+                        <a class="nav-link {{ request()->routeIs('supplier.*') ? 'active' : '' }}" href="{{ route('supplier.index') }}">
+                            <i class="bi bi-truck"></i> Suppliers
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('purchase-orders.*') ? 'active' : '' }}" href="{{ route('purchase-orders.index') }}">
+                            <i class="bi bi-cart-check-fill"></i> Purchase Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('stock-lab.*') ? 'active' : '' }}" href="{{ route('stock-lab.index') }}">
+                            <i class="bi bi-boxes"></i> Stock Lab
+                        </a>
                     </li>
                     <li class="nav-item">
                         <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                             @csrf
-                            <button type="submit" class="nav-link btn btn-link text-white"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                            <button type="submit" class="nav-link btn btn-link text-white">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </button>
                         </form>
                     </li>
                 </ul>
@@ -129,7 +138,6 @@
             </div>
         </div>
     @endif
-
     @if(session('error'))
         <div class="container mt-3">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -138,7 +146,6 @@
             </div>
         </div>
     @endif
-
     @if(session('warning'))
         <div class="container mt-3">
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -155,7 +162,6 @@
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <!-- Optional JavaScript -->
     <script>
         // Auto-close alerts after 5 seconds

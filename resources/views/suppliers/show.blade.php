@@ -86,7 +86,7 @@
 
             <!-- Back Button -->
             <div class="mt-3">
-                <a href="{{ route('suppliers.index') }}" class="btn btn-secondary">
+                <a href="{{ route('supplier.index') }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Back to Suppliers
                 </a>
             </div>
