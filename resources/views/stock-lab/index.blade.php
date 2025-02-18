@@ -6,6 +6,13 @@
 <div class="container">
     <h1>Stock Lab</h1>
 
+    <!-- Button to View Stock Logs -->
+    <div class="mb-3">
+        <a href="{{ route('stock-logs.index') }}" class="btn btn-secondary">
+            <i class="bi bi-clock-history"></i> View Stock Logs
+        </a>
+    </div>
+
     <!-- Success/Error Messages -->
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -65,7 +72,7 @@
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
 
                             <!-- Action Dropdown -->
-                            <select name="action" class="form-select form-select-sm me-2" style="width: auto;" required>
+                            <select name="action" class="form-select form-select-sm me-2 action-dropdown" style="width: auto;" required>
                                 <option value="increment">Increment</option>
                                 <option value="decrement">Decrement</option>
                             </select>
@@ -74,32 +81,18 @@
                             <input type="number" name="quantity" min="1" value="1" class="form-control form-control-sm me-2" style="width: 80px;" required>
 
                             <!-- Reason Dropdown (only visible for decrement) -->
-                            <select name="reason" id="reason-{{ $product->id }}" class="form-select form-select-sm d-none" style="width: auto;">
+                            <select name="reason" id="reason-{{ $product->id }}" class="form-select form-select-sm reason-dropdown d-none" style="width: auto;" required>
                                 <option value="" disabled selected>Select Reason</option>
-                                <option value="lost">Lost</option>
-                                <option value="stolen/damaged">Stolen/Damaged</option>
+                                <option value="damaged">Damaged</option>
                                 <option value="expired">Expired</option>
+                                <option value="lost_or_stolen">Lost or Stolen</option>
                             </select>
 
                             <!-- Submit Button -->
-                            <button type="submit" class="btn btn-sm btn-primary">
+                            <button type="submit" class="btn btn-sm btn-primary" aria-label="Apply Changes">
                                 <i class="bi bi-check-circle"></i> Apply
                             </button>
                         </form>
-
-                        <!-- JavaScript to Toggle Reason Field -->
-                        <script>
-                            document.querySelector('select[name="action"]').addEventListener('change', function () {
-                                const reasonField = document.getElementById('reason-{{ $product->id }}');
-                                if (this.value === 'decrement') {
-                                    reasonField.classList.remove('d-none');
-                                    reasonField.setAttribute('required', true);
-                                } else {
-                                    reasonField.classList.add('d-none');
-                                    reasonField.removeAttribute('required');
-                                }
-                            });
-                        </script>
                     </td>
                 </tr>
                 @empty
@@ -116,4 +109,23 @@
         {{ $products->links() }}
     </div>
 </div>
+
+<!-- JavaScript to Toggle Reason Field -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Attach event listeners to all action dropdowns
+        document.querySelectorAll('.action-dropdown').forEach(function (dropdown) {
+            dropdown.addEventListener('change', function () {
+                const reasonField = this.closest('td').querySelector('.reason-dropdown');
+                if (this.value === 'decrement') {
+                    reasonField.classList.remove('d-none'); // Show the reason dropdown
+                    reasonField.setAttribute('required', true); // Make it required
+                } else {
+                    reasonField.classList.add('d-none'); // Hide the reason dropdown
+                    reasonField.removeAttribute('required'); // Remove the required attribute
+                }
+            });
+        });
+    });
+</script>
 @endsection

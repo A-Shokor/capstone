@@ -1,5 +1,6 @@
 <?php
-
+use App\Http\Controllers\CustomerOrderItemController;
+use App\Http\Controllers\CustomerOrderController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SupplierController;
@@ -63,15 +64,48 @@ Route::prefix('purchase-orders')->group(function () {
     Route::get('/search', [PurchaseOrderController::class, 'search'])->name('purchase-orders.search');
 
 });
+Route::post('/purchase-orders/{purchaseOrder}/send-order-email', [PurchaseOrderController::class, 'sendOrderEmail'])
+    ->name('purchase-orders.send-order-email');
 
 //stock lab 
 Route::get('/stock-lab', [StockLabController::class, 'index'])->name('stock-lab.index');
 Route::post('/stock-lab/update-quantity', [StockLabController::class, 'updateQuantity'])->name('stock-lab.update-quantity');
+Route::get('/stock-logs', [StockLabController::class, 'showLogs'])->name('stock-logs.index');
+
 
 // Purchase Order Item Routes
 Route::prefix('purchase-order-items')->group(function () {
     Route::delete('/{item}', [PurchaseOrderItemController::class, 'destroy'])->name('purchase-order-item.destroy'); // Delete a purchase order item
 });
+
+
+
+//CustomerOrders
+// Update Quantity
+Route::put('/customer-order-items/{item}', [CustomerOrderItemController::class, 'update'])->name('customer-order-items.update');
+
+// Delete Item
+Route::delete('/customer-order-items/{item}', [CustomerOrderItemController::class, 'destroy'])->name('customer-order-items.destroy');
+Route::prefix('customer-orders')->group(function () {
+    Route::get('/', [CustomerOrderController::class, 'index'])->name('customer-orders.index'); // List all orders
+    Route::get('/create', [CustomerOrderController::class, 'create'])->name('customer-orders.create'); // Create a new order
+    Route::post('/store', [CustomerOrderController::class, 'store'])->name('customer-orders.store'); // Store a new order
+    Route::get('/{customerOrder}/edit', [CustomerOrderController::class, 'edit'])->name('customer-orders.edit'); // Edit an order
+    Route::put('/{customerOrder}', [CustomerOrderController::class, 'update'])->name('customer-orders.update'); // Update an order
+    Route::delete('/{customerOrder}', [CustomerOrderController::class, 'destroy'])->name('customer-orders.destroy'); // Delete an order
+    Route::get('/{customerOrder}', [CustomerOrderController::class, 'show'])->name('customer-orders.show');
+    Route::post('/customer-order-items', [CustomerOrderItemController::class, 'store'])->name('customer-order-items.store');
+    Route::put('/customer-orders/{customerOrder}/update-status', [CustomerOrderController::class, 'updateStatus'])->name('customer-orders.update-status');
+    Route::get('/customer-orders/history', [CustomerOrderController::class, 'history'])->name('customer-orders.history');
+    
+    
+    // Order Items
+    Route::post('/{customerOrder}/add-product', [CustomerOrderController::class, 'addProduct'])->name('customer-orders.add-product'); // Add a product to an order
+    Route::delete('/{customerOrder}/remove-product/{customerOrderItem}', [CustomerOrderController::class, 'removeProduct'])->name('customer-orders.remove-product'); // Remove a product from an order
+});
+// Cancel an Order
+Route::put('/customer-orders/{customerOrder}/cancel', [CustomerOrderController::class, 'cancel'])
+    ->name('customer-orders.cancel');
 
 // Profile Routes
 Route::middleware('auth')->group(function () {

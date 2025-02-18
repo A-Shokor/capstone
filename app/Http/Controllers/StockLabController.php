@@ -4,9 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\StockLog; // Import the StockLog model
 
 class StockLabController extends Controller
 {
+
+
+
+
+    // Show the stock logs
+public function showLogs()
+{
+    // Fetch all stock logs with product details
+    $logs = StockLog::with('product')->latest()->paginate(10);
+
+    return view('stock-logs.index', compact('logs'));
+}
     // Display the stock lab page
     public function index(Request $request)
     {
@@ -35,26 +48,35 @@ class StockLabController extends Controller
             'product_id' => 'required|exists:products,id',
             'action' => 'required|in:increment,decrement',
             'quantity' => 'required|integer|min:1',
-            'reason' => 'nullable|required_if:action,decrement|string', // Reason is required only for decrement
+            'reason' => 'nullable|required_if:action,decrement|in:damaged,expired,lost_or_stolen', // Updated reasons
         ]);
 
         // Find the product
         $product = Product::findOrFail($validated['product_id']);
 
+        // Perform the action
         if ($validated['action'] === 'increment') {
-            // Increment the quantity
             $product->increment('quantity', $validated['quantity']);
+            $message = "Stock incremented successfully.";
         } elseif ($validated['action'] === 'decrement') {
-            // Ensure the quantity does not go below zero
+            // Ensure the stock quantity does not go below zero
             if ($product->quantity < $validated['quantity']) {
-                return redirect()->back()->withErrors(['quantity' => 'Cannot decrement more than the available quantity.']);
+                return redirect()->back()->withErrors(['error' => 'Not enough stock available.']);
             }
 
-            // Decrement the quantity
             $product->decrement('quantity', $validated['quantity']);
+            $message = "Stock decremented successfully due to: {$validated['reason']}.";
         }
 
+        // Log the stock update
+        StockLog::create([
+            'product_id' => $validated['product_id'],
+            'action' => $validated['action'],
+            'quantity' => $validated['quantity'],
+            'reason' => $validated['reason'] ?? null, // Null for increments
+        ]);
+
         // Redirect back with success message
-        return redirect()->back()->with('success', 'Product quantity updated successfully.');
+        return redirect()->back()->with('success', $message);
     }
 }

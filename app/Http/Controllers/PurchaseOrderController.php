@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Mail;
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseOrder;
 use App\Models\Product;
@@ -178,27 +178,10 @@ class PurchaseOrderController extends Controller
         return redirect()->route('purchase-orders.show', $purchaseOrder)->with('success', 'Purchase order received successfully.');
     }
 
-    public function uploadImage(Request $request, PurchaseOrder $purchaseOrder)
-    {
-        // Validate the request
-        $validated = $request->validate([
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Allow multiple images, up to 2MB each
-        ]);
     
-        // Loop through each uploaded image
-        foreach ($request->file('images') as $imageFile) {
-            // Store the image
-            $imagePath = $imageFile->store('purchase-order-images', 'public');
-    
-            // Create a new record in the database
-            $purchaseOrder->images()->create([
-                'image' => $imagePath,
-            ]);
-        }
-    
-        // Redirect back with success message
-        return redirect()->back()->with('success', 'Images uploaded successfully.');
-    }
+
+  
+
 
     public function destroy(PurchaseOrder $purchaseOrder)
 {
@@ -208,5 +191,50 @@ class PurchaseOrderController extends Controller
 
     // Redirect with success message
     return redirect()->route('purchase-orders.index')->with('success', 'Purchase order deleted successfully.');
+}
+
+
+    public function uploadImage(Request $request, PurchaseOrder $purchaseOrder)
+{
+    // Validate the input
+    $request->validate([
+        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
+    ]);
+
+    // Store the image in the storage/app/public/po_images directory
+    $path = $request->file('image')->store('po_images', 'public');
+
+    // Create a new PurchaseOrderImage record
+    $purchaseOrder->images()->create([
+        'image' => $path,
+    ]);
+
+    return redirect()->back()->with('success', 'Image uploaded successfully.');
+}
+
+//Send an email to the supplier with the purchase order details.
+
+public function sendOrderEmail(PurchaseOrder $purchaseOrder)
+{
+   // Ensure the supplier has an email address
+   if (!$purchaseOrder->supplier || !$purchaseOrder->supplier->email) {
+       return redirect()->back()->withErrors(['error' => 'Supplier email is missing.']);
+   }
+
+   // Prepare the email data
+   $supplierEmail = $purchaseOrder->supplier->email;
+   $subject = "New Purchase Order (#{$purchaseOrder->id})";
+   $data = [
+       'purchaseOrder' => $purchaseOrder,
+   ];
+
+   // Send the email
+   Mail::send('emails.purchase-order', $data, function ($message) use ($supplierEmail, $subject) {
+       $message->to($supplierEmail)
+               ->subject($subject);
+   });
+
+   // Redirect back with success message
+   return redirect()->back()->with('success', 'Order email sent successfully to the supplier.');
 }
 }
